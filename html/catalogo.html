@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title> ALEDI - Velas Aromaticas </title>
+    <!-- ************************************************* -->
+    <link rel="stylesheet" type="text/css" href="../css/product.css">
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            background-image: url(../img/fondo.jpg);
+            background-position: center;
+            padding-top: 100px;
+        }
+
+        section {
+
+        }
+
+        #titulo {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4d4d4d;
+            text-align: center;
+            background-color: #f1c5bd;
+            padding: 25px;
+            width: 700px;
+        }
+
+    </style>
+    <!-- ************************************************* -->
+
+</head>
+
+    <body>
+
+        <section class="body">
+
+            <div id="titulo">
+                <h1> Cátalogo </h1>
+            </div>
+
+            <section class="product-container">
+                <!-- Aquí se cargará el contenido de product.html -->
+            </section>
+
+<!--            <script src="../js/loadProduct.js"></script>-->
+
+            <script>
+                fetch('../php/product.php')
+                    .then(response => response.text())
+                    .then(data => {
+                        document.querySelector('.product-container').innerHTML = data;
+                    });
+            </script>
+
+            <script src="../Js/catalogo.js"></script>
+
+        </section>
+
+    </body>
+
+</html>

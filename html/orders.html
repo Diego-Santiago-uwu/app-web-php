@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title> ALEDI - Velas Aromaticas </title>
+    <!-- ************************************************* -->
+    <link rel="stylesheet" type="text/css" href="../css/carrito.css">
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            background-image: url(../img/fondo.jpg);
+            background-position: center;
+            padding-top: 100px;
+        }
+
+        section {
+
+        }
+
+        #titulo {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4d4d4d;
+            text-align: center;
+            background-color: #f1c5bd;
+            padding: 25px;
+            width: 700px;
+        }
+
+    </style>
+    <!-- ************************************************* -->
+
+</head>
+
+<body>
+
+<section class="body">
+
+<!-- Modal -->
+    <div id="order-modal" style="display: none;">
+        <form id="order-form">
+            <label for="nombres">Nombres:</label>
+            <input type="text" id="nombres" name="nombres" required>
+
+            <label for="apellidos">Apellidos:</label>
+            <input type="text" id="apellidos" name="apellidos" required>
+
+            <!-- Agrega los demás campos aquí -->
+
+            <button type="submit">Crear orden</button>
+        </form>
+    </div>
+
+</section>
+
+</body>
+
+</html>
