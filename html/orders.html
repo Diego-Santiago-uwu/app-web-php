@@ -5,10 +5,11 @@
 <head>
     <meta charset="UTF-8">
     <title> ALEDI - Velas Aromaticas </title>
-    <!-- ************************************************* -->
+    <!-- Enlace a la hoja de estilos externa -->
     <link rel="stylesheet" type="text/css" href="../css/order.css">
 
     <style>
+        /* Estilos para el cuerpo de la página */
         body {
             display: flex;
             justify-content: center;
@@ -19,10 +20,12 @@
             padding-top: 100px;
         }
 
+        /* Estilos para las secciones de la página */
         section {
 
         }
 
+        /* Estilos para el título de la página */
         #titulo {
             font-size: 2em;
             font-weight: bold;
@@ -40,18 +43,23 @@
 
 <body>
 
+<!-- Contenedor principal de la página -->
 <section class="body">
 
+    <!-- Título de la página -->
     <div id="titulo">
         <h1> Resumen de compra </h1>
     </div>
 
+    <!-- Sección donde se cargará el contenido de order.php -->
     <section class="order-container">
         <!-- Aquí se cargará el contenido de order.php -->
     </section>
 
+    <!-- Enlazamos el archivo JavaScript para la funcionalidad de la página -->
     <script src="../Js/order.js"> </script>
 
+    <!-- Script para cargar el contenido de order.php en la sección order-container y manejar el envío del formulario -->
     <script>
         fetch('../php/order.php', {
             method: 'GET',

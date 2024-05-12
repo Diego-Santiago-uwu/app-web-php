@@ -1,4 +1,6 @@
 <?php
+
+// Establecemos la conexion con la base de datos
 $servername = "localhost";
 $username = "root";
 $password = "root1234";
@@ -12,9 +14,11 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
+
+// Cuando le damos click al boton de realizar pedido
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-   // Collect form data
+   // Informacion que se recolegta del formulario
    $nombres = $_POST['nombres'];
    $apellidos = $_POST['apellidos'];
    $email = $_POST['email'];
@@ -25,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
    $codigo_postal = $_POST['codigo-postal'];
    $cartid = $_POST['cartid'];
 
-   // Calculate the total of the order
+   // Calculamos el precio total
    $sql = "SELECT SUM(product.precio * cart.quantity) AS total FROM cart INNER JOIN product ON cart.productid = product.productid";
    $result = $conn->query($sql);
 
@@ -34,15 +38,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
        $total = $row['total'];
    }
 
-   // Get product details
+   // Obtenemos detalles del producto para poder guardarlo despues
    $sql = "SELECT product.productid, product.nombreproduct, product.precio, cart.quantity FROM product INNER JOIN cart ON product.productid = cart.productid";
    $result = $conn->query($sql);
 
    if ($result->num_rows > 0) {
 
-
+        //contenido es la variable que nos permite guardar toda la informacion
        $contenido = "\nProductos:\n";
 
+
+        // Recorremos el arreglo para saber cuantos productos son y que cantidad de cada uno
        while ($row = $result->fetch_assoc()) {
            $contenido .= "Producto: " . $row['nombreproduct'] . ", Cantidad: " . $row['quantity'] . "\n";
        }
@@ -61,12 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
    }
 
-    // After creating and closing the file
+    // Antes creamos el archivo y lo localizamos
     $archivo = fopen("../datos.txt", "w");
     fwrite($archivo, $contenido);
     fclose($archivo);
 
-    // Set headers for download
+    // Establecemos parametros para poder hacer la descarga del archivo
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
     header('Content-Disposition: attachment; filename="'.basename($archivo).'"');
@@ -75,51 +81,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Pragma: public');
     header('Content-Length: ' . filesize($archivo));
 
-    // Clean output buffer
+    // Limpiamos el buffer
     ob_clean();
     flush();
 
-    // Send file to client
+    // Enviamos el archivo al cliente
     readfile($archivo);
 
-    // Delete file from server after sending
+    // Borramos datos de sesion
     unlink($archivo);
 
-    // Start transaction
+    // Empezamos con la transaccion
     $conn->begin_transaction();
 
-    // Create SQL query to insert new order
+    // Creamos una query de sql para guardar esta orden
     $sql = "INSERT INTO orders (cartid, total, nombres, apellidos, email, telefono, calle, ciudad, estado, `codigo-postal`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    // Prepare query
+    // Preparamos la query
     $stmt = $conn->prepare($sql);
 
-    // Bind parameters
+    // Establecemos parametros para la query
     $stmt->bind_param("idssssssss", $cartid, $total, $nombres, $apellidos, $email, $telefono, $calle, $ciudad, $estado, $codigo_postal);
 
-    // Execute query
+    // Hacemos la query
     if ($stmt->execute()) {
-        // After inserting order into orders table
-        // Delete all cart data
+        // Despues de insertar datos, eliminamos informacion de la tabla de cart
         $sql = "DELETE FROM cart";
         $stmt = $conn->prepare($sql);
         if ($stmt->execute()) {
-            // Cart data deleted successfully
-            // Commit transaction
             $conn->commit();
-            // Return response in JSON format
             header('Content-Type: application/json');
             echo json_encode(['success' => true, 'message' => 'Order created successfully. All cart data deleted successfully.']);
         } else {
-            // Error deleting cart data
-            // Rollback transaction
+            // Error borrando cart data
             $conn->rollback();
             header('Content-Type: application/json');
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Error deleting cart data']);
         }
     } else {
-        // Error creating order
+        // Error creando order
         // Rollback transaction
         $conn->rollback();
         header('Content-Type: application/json');
@@ -127,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['success' => false, 'message' => 'Error creating order']);
     }
 } else {
-    // Show form if nothing has been submitted
+    // Mostrar informacion del formulario
     echo '<form class="formulario" id="order-form" method="POST">
         <label for="nombres">Nombres:</label>
         <input type="text" id="nombres" name="nombres" required>

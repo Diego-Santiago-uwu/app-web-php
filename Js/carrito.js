@@ -7,6 +7,7 @@ function handleDeleteButtonClick(event) {
     data.append('productId', productId);
     data.append('action', 'delete');
 
+    // Realiza una solicitud POST para eliminar un producto del carrito
     fetch('../php/carrito.php', {
         method: 'POST',
         headers: {
@@ -33,6 +34,7 @@ function handleIncreaseQuantityClick(event) {
     data.append('productId', productId);
     data.append('action', 'increase');
 
+    // Realiza una solicitud POST para incrementar la cantidad de un producto en el carrito
     fetch('../php/carrito.php', {
         method: 'POST',
         headers: {
@@ -59,6 +61,7 @@ function handleDecreaseQuantityClick(event) {
     data.append('productId', productId);
     data.append('action', 'decrease');
 
+    // Realiza una solicitud POST para disminuir la cantidad de un producto en el carrito
     fetch('../php/carrito.php', {
         method: 'POST',
         headers: {

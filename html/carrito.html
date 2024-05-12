@@ -6,9 +6,12 @@
     <meta charset="UTF-8">
     <title> ALEDI - Velas Aromaticas </title>
     <!-- ************************************************* -->
+    <!-- Enlazamos el archivo CSS para los estilos de la página -->
     <link rel="stylesheet" type="text/css" href="../css/carrito.css">
 
+    <!-- Definimos estilos internos para la página -->
     <style>
+        /* Estilos para el cuerpo de la página */
         body {
             display: flex;
             justify-content: center;
@@ -19,10 +22,12 @@
             padding-top: 100px;
         }
 
+        /* Estilos para las secciones de la página */
         section {
 
         }
 
+        /* Estilos para el título de la página */
         #titulo {
             font-size: 2em;
             font-weight: bold;
@@ -42,14 +47,17 @@
 
 <section class="body">
 
+    <!-- Título de la página -->
     <div id="titulo">
         <h1> Carro de compras </h1>
     </div>
 
+    <!-- Sección donde se cargará el contenido de product.html -->
     <section class="product-container">
         <!-- Aquí se cargará el contenido de product.html -->
     </section>
 
+    <!-- Script para cargar el contenido de carrito.php en la sección product-container -->
     <script>
         fetch('../php/carrito.php')
             .then(response => response.text())
@@ -58,6 +66,7 @@
             });
     </script>
 
+    <!-- Enlazamos el archivo JavaScript para la funcionalidad de la página -->
     <script src="../Js/carrito.js"></script>
 
 </section>

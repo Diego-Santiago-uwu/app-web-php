@@ -2,80 +2,89 @@
 
 <html lang="es">
 
-    <head>
-        <meta charset="UTF-8">
-        <title> ALEDI - Velas Aromaticas </title>
-        <!-- ************************************************* -->
-        <style>
-            body {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-                background-image: url('../img/fondo.jpg');
-                background-position: center;
-            }
+<head>
+    <meta charset="UTF-8">
+    <title> ALEDI - Velas Aromaticas </title>
+    <!-- ************************************************* -->
+    <style>
+        /* Estilos para el cuerpo de la página */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('../img/fondo.jpg');
+            background-position: center;
+        }
 
-            section {
-                text-align: center;
-                background-color: #f1c5bd;
-                padding: 25px;
-            }
+        /* Estilos para la sección de la página */
+        section {
+            text-align: center;
+            background-color: #f1c5bd;
+            padding: 25px;
+        }
 
-            #titulo {
-                font-size: 2em;
-                font-weight: bold;
-                color: #4d4d4d;
-            }
+        /* Estilos para el título de la página */
+        #titulo {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4d4d4d;
+        }
 
-            .descripcion {
-                font-size: 1.75em;
-                color: #4d4d4d;
-            }
+        /* Estilos para la descripción de la página */
+        .descripcion {
+            font-size: 1.75em;
+            color: #4d4d4d;
+        }
 
-            .descripcion2 {
-                font-size: 1.2em;
-                color: #4d4d4d;
-            }
+        /* Estilos para la segunda descripción de la página */
+        .descripcion2 {
+            font-size: 1.2em;
+            color: #4d4d4d;
+        }
 
-            #boton-catalogo {
-                margin-top: 20px;
-                font-size: 1.5em;
-                background-color: #4d4d4d;
-                color: white;
-                padding: 10px;
-                border-radius: 5px;
-                text-decoration: none;
-            }
+        /* Estilos para el botón del catálogo */
+        #boton-catalogo {
+            margin-top: 20px;
+            font-size: 1.5em;
+            background-color: #4d4d4d;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
 
-            #boton-catalogo a {
-                color: white;
-            }
-        </style>
-        <!-- ************************************************* -->
+        /* Estilos para el enlace dentro del botón del catálogo */
+        #boton-catalogo a {
+            color: white;
+        }
+    </style>
+    <!-- ************************************************* -->
 
-    </head>
+</head>
 
-    <body>
+<body>
 
-        <section>
+    <section>
+        <!-- Título de la página -->
+        <div id="titulo">
+            <h1> ALEDI - Velas Aromaticas </h1>
+        </div>
 
-            <div id="titulo">
-                <h1> ALEDI - Velas Aromaticas </h1>
-            </div>
+        <!-- Mensaje de la página -->
+        <div id="mensaje">
+            <h1 class="descripcion"> ¿Aburrid@ de los aromas de tu habitación? </h1>
+            <p class="descripcion2"> ¡No te preocupes! En ALEDI tenemos la solución perfecta para ti. </p>
+        </div>
 
-            <div id="mensaje">
-                <h1 class="descripcion"> ¿Aburrid@ de los aromas de tu habitación? </h1>
-                <p class="descripcion2"> ¡No te preocupes! En ALEDI tenemos la solución perfecta para ti. </p>
-            </div>
+        <!-- Botón para ver el catálogo -->
+        <div id="boton-catalogo">
+            <a href="catalogo.html"> Ver catálogo </a>
+        </div>
 
-            <div id="boton-catalogo">
-                <a href="catalogo.html"> Ver catálogo </a>
-            </div>
+    </section>
 
-        </section>
-
-    </body>
+</body>
 
 </html>

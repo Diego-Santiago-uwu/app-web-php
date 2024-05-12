@@ -1,5 +1,6 @@
-
 <?php
+
+//Establecemos datos para la conexion
 $servername = "localhost";
 $username = "root";
 $password = "root1234";
@@ -13,7 +14,10 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
+
+//Funcion que nos permite agregar productos al carrito
 function addToCart($conn, $productId, $quantity) {
+
     // Primero, verifica si el producto ya está en el carrito
     $sql = "SELECT quantity FROM cart WHERE productid = ?";
     $stmt = $conn->prepare($sql);
@@ -41,7 +45,10 @@ function addToCart($conn, $productId, $quantity) {
     }
 }
 
+//Manejar la respuesta del metodo POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    //Buscamos por productId y Cantidad
     if (isset($_POST['productId']) && isset($_POST['quantity'])) {
         $productId = $_POST['productId'];
         $quantity = $_POST['quantity'];
@@ -56,27 +63,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Faltan datos en la solicitud']);
     }
-} elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+}
+
+//Manejar la respuesta del metodo GET  que renderiza el html
+elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
 $sql = "SELECT product.productid, product.imagen, product.nombreproduct, product.precio, cart.quantity FROM cart INNER JOIN product ON cart.productid = product.productid";    $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         // Salida de cada fila
         while($row = $result->fetch_assoc()) {
-echo '<div class="product-card">';
-    echo '<button type="button" class="delete-button" data-id="' . $row['productid'] . '">X</button>';
-    echo '<div class="product-img-container">';
-        echo '<img src="../img/' . $row['imagen'] . '" alt="' . $row['nombreproduct'] . '" class="product-img">';
-    echo '</div>';
-    echo '<div class="product-info">';
-        echo '<h2 class="product-name">' . $row['nombreproduct'] . '</h2>';
-        echo '<p class="product-price">Precio: $' . $row['precio'] . '</p>';
-        echo '<div class="product-quantity">';
-            echo '<button type="button" class="quantity-button" data-id="' . $row['productid'] . '" data-action="decrease">-</button>';
-            echo '<span>' . $row['quantity'] . '</span>';
-            echo '<button type="button" class="quantity-button" data-id="' . $row['productid'] . '" data-action="increase">+</button>';
-        echo '</div>';
-    echo '</div>';
-echo '</div>';
+
+            //Contenido html de cada producto
+            echo '<div class="product-card">';
+                echo '<button type="button" class="delete-button" data-id="' . $row['productid'] . '">X</button>';
+                echo '<div class="product-img-container">';
+                    echo '<img src="../img/' . $row['imagen'] . '" alt="' . $row['nombreproduct'] . '" class="product-img">';
+                echo '</div>';
+                echo '<div class="product-info">';
+                    echo '<h2 class="product-name">' . $row['nombreproduct'] . '</h2>';
+                    echo '<p class="product-price">Precio: $' . $row['precio'] . '</p>';
+                    echo '<div class="product-quantity">';
+                        echo '<button type="button" class="quantity-button" data-id="' . $row['productid'] . '" data-action="decrease">-</button>';
+                        echo '<span>' . $row['quantity'] . '</span>';
+                        echo '<button type="button" class="quantity-button" data-id="' . $row['productid'] . '" data-action="increase">+</button>';
+                    echo '</div>';
+                echo '</div>';
+            echo '</div>';
         }
     } else {
         echo "El carrito está vacío";
