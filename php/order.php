@@ -13,6 +13,7 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     // Recoger los datos del formulario
     $nombres = $_POST['nombres'];
     $apellidos = $_POST['apellidos'];
@@ -29,9 +30,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $cartid);
     $stmt->execute();
+
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     $total = $row['total'];
+
+    // Obtener los detalles del producto
+    $sql = "SELECT product.nombreproduct, cart.quantity FROM cart INNER JOIN product ON cart.productid = product.productid WHERE cart.cartid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cartid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $contenido .= "\nProductos:\n";
+
+    while ($row = $result->fetch_assoc()) {
+        $contenido .= "Producto: " . $row['nombreproduct'] . ", Cantidad: " . $row['quantity'] . "\n";
+    }
+
+
+    // Calcular el total del pedido
+    $sql = "SELECT SUM(product.precio * cart.quantity) AS total FROM cart INNER JOIN product ON cart.productid = product.productid WHERE cart.cartid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cartid);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $total = $row['total'];
+
+    $contenido .= "\nTotal a Pagar: $total\n";
+
+    $contenido =
+        "Nombres: $nombres\n
+        Apellidos: $apellidos\n
+        Email: $email\n
+        Teléfono: $telefono\n
+        Calle: $calle\n
+        Ciudad: $ciudad\n
+        Estado: $estado\n
+        Código Postal: $codigo_postal\n";
+
+    while ($row = $result->fetch_assoc()) {
+        $contenido .= "\nProducto: " . $row['nombreproduct'] . "\nCantidad: " . $row['quantity'];
+    }
+
+    $contenido .= "\nTotal a Pagar: $total";
+
+    // Después de crear y cerrar el archivo
+   $archivo = fopen("../datos.txt", "w");
+    fwrite($archivo, $contenido);
+    fclose($archivo);
+
+    // Configurar los encabezados para la descarga
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="'.basename($archivo).'"');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . filesize($archivo));
+
+    // Limpiar el buffer de salida
+    ob_clean();
+    flush();
+
+    // Enviar el archivo al cliente
+    readfile($archivo);
+
+    // Eliminar el archivo del servidor después de enviarlo
+    unlink($archivo);
 
     // Iniciar transacción
     $conn->begin_transaction();
@@ -76,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 } else {
     // Mostrar el formulario si no se ha enviado nada
-    echo '<form class = "formulario" id="order-form" method="POST">
+    echo '<form class="formulario" id="order-form" method="POST">
         <label for="nombres">Nombres:</label>
         <input type="text" id="nombres" name="nombres" required>
 
