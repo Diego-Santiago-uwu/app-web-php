@@ -1,29 +1,30 @@
-window.addEventListener('DOMContentLoaded', (event) => {
-    const orderForm = document.getElementById('order-form');
+window.addEventListener('DOMContentLoaded', function() {
+    fetch('../php/order.php')
+        .then(response => response.text())
+        .then(data => {
+            document.querySelector('.order-container').innerHTML = data;
 
-    if (orderForm) {
-        orderForm.addEventListener('submit', function(event) {
-            event.preventDefault();
+            // Obtén el formulario
+            const form = document.getElementById('order-form');
 
-            // Aquí puedes recoger los datos del formulario y enviarlos al servidor
-            const formData = new FormData(orderForm);
-            fetch('../php/order.php', {
-                method: 'POST',
-                body: formData,
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Orden creada exitosamente');
-                    } else {
-                        console.error('Error al crear la orden:', data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('There has been a problem with your fetch operation: ', error);
-                });
+            // Verifica si el formulario existe
+            if (form) {
+                // Obtén el botón de envío
+                const submitButton = form.querySelector('input[type="submit"]');
+
+                // Verifica si el botón de envío existe
+                if (submitButton) {
+                    // Agrega un controlador de eventos al botón de envío
+                    submitButton.addEventListener('click', function(event) {
+                        // Previene la acción por defecto del botón de envío
+                        event.preventDefault();
+                        console.log('El botón de envío ha sido accionado');
+                    });
+                } else {
+                    console.log('No se encontró el botón de envío');
+                }
+            } else {
+                console.log('No se encontró el formulario');
+            }
         });
-    } else {
-        console.error('No se encontró el formulario de pedido');
-    }
 });
