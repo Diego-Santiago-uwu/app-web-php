@@ -6,9 +6,35 @@
     <meta charset="UTF-8">
     <title> ALEDI - Velas Aromaticas </title>
     <!-- ************************************************* -->
-    <link rel="stylesheet" type="text/css" href="../css/carrito.css">
+    <link rel="stylesheet" type="text/css" href="../css/order.css">
 
-    <!-- Estilos omitidos para brevedad -->
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            background-image: url(../img/fondo.jpg);
+            background-position: center;
+            padding-top: 100px;
+        }
+
+        section {
+
+        }
+
+        #titulo {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4d4d4d;
+            text-align: center;
+            background-color: #f1c5bd;
+            padding: 25px;
+            width: 700px;
+        }
+
+    </style>
+    <!-- ************************************************* -->
 
 </head>
 
@@ -16,37 +42,23 @@
 
 <section class="body">
 
-    <!-- Modal -->
-    <div id="order-modal" style="display: none;">
-        <form id="order-form">
-            <label for="nombres">Nombres:</label>
-            <input type="text" id="nombres" name="nombres" required>
-
-            <label for="apellidos">Apellidos:</label>
-            <input type="text" id="apellidos" name="apellidos" required>
-
-            <!-- Agrega los demás campos aquí -->
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-
-            <label for="telefono">Teléfono:</label>
-            <input type="tel" id="telefono" name="telefono" required>
-
-            <label for="calle">Calle:</label>
-            <input type="text" id="calle" name="calle" required>
-
-            <label for="ciudad">Ciudad:</label>
-            <input type="text" id="ciudad" name="ciudad" required>
-
-            <label for="estado">Estado:</label>
-            <input type="text" id="estado" name="estado" required>
-
-            <label for="codigo-postal">Código Postal:</label>
-            <input type="text" id="codigo-postal" name="codigo-postal" required>
-
-            <button type="submit">Crear orden</button>
-        </form>
+    <div id="titulo">
+        <h1> Resumen de compra </h1>
     </div>
+
+    <section class="order-container">
+        <!-- Aquí se cargará el contenido de order.php -->
+    </section>
+
+    <script>
+        fetch('../php/order.php')
+            .then(response => response.text())
+            .then(data => {
+                document.querySelector('.order-container').innerHTML = data;
+            });
+    </script>
+
+    <script src="../Js/order.js"></script>
 
 </section>
 

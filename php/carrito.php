@@ -99,11 +99,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
    echo '<p class="total-price">Precio total: $' . $totalPrice . '</p>';
    echo '<div class="comprar-button">';
-   echo '<button type="button" class="comprar-button" style="
-                                                           align-items: center !important;
-                                                           padding-bottom: 10px !important;
-                                                       ">
-                                                       ¡ Comprar ahora ! </button>';
+    echo '<button type="button" class="comprar-button" style="
+                                                            align-items: center !important;
+                                                            padding-bottom: 10px !important;
+                                                            " onclick="window.location.href=\'http://localhost/eq12/html/orders.html\'">
+                                                            ¡ Comprar ahora ! </button>';
     echo '</div>';
 
     } else {

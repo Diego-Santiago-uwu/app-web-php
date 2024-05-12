@@ -1,5 +1,4 @@
 <?php
-
 $servername = "localhost";
 $username = "root";
 $password = "root1234";
@@ -13,35 +12,94 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
-// Recoger los datos del formulario
-$nombres = $_POST['nombres'];
-$apellidos = $_POST['apellidos'];
-$email = $_POST['email'];
-$telefono = $_POST['telefono'];
-$calle = $_POST['calle'];
-$ciudad = $_POST['ciudad'];
-$estado = $_POST['estado'];
-$codigo_postal = $_POST['codigo-postal'];
-// Recoge los demás campos aquí
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Recoger los datos del formulario
+    $nombres = $_POST['nombres'];
+    $apellidos = $_POST['apellidos'];
+    $email = $_POST['email'];
+    $telefono = $_POST['telefono'];
+    $calle = $_POST['calle'];
+    $ciudad = $_POST['ciudad'];
+    $estado = $_POST['estado'];
+    $codigo_postal = $_POST['codigo-postal'];
+    $cartid = $_POST['cartid'];
 
-// Crear la consulta SQL para insertar la nueva orden
-$sql = "INSERT INTO orders (nombres, apellidos, email, telefono, calle, ciudad, estado, `codigo-postal`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // Calcular el total del pedido
+    $sql = "SELECT SUM(product.precio * cart.quantity) AS total FROM cart INNER JOIN product ON cart.productid = product.productid WHERE cart.cartid = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $cartid);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $total = $row['total'];
 
-// Preparar la consulta
-$stmt = $conn->prepare($sql);
+    // Crear la consulta SQL para insertar la nueva orden
+    $sql = "INSERT INTO orders (cartid, total, nombres, apellidos, email, telefono, calle, ciudad, estado, `codigo-postal`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-// Vincular los parámetros
-$stmt->bind_param("ssssssss", $nombres, $apellidos, $email, $telefono, $calle, $ciudad, $estado, $codigo_postal);
+    // Preparar la consulta
+    $stmt = $conn->prepare($sql);
 
-// Ejecutar la consulta
-if ($stmt->execute()) {
-    // Devolver una respuesta en formato JSON
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'message' => 'Orden creada exitosamente']);
+    // Vincular los parámetros
+    $stmt->bind_param("idssssssss", $cartid, $total, $nombres, $apellidos, $email, $telefono, $calle, $ciudad, $estado, $codigo_postal);
+
+    // Ejecutar la consulta
+    if ($stmt->execute()) {
+        // Después de insertar la orden en la tabla orders
+        // Eliminar los datos del carrito
+        $sql = "DELETE FROM cart WHERE cartid = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $cartid);
+        if ($stmt->execute()) {
+            // Los datos del carrito se eliminaron correctamente
+            // Devolver una respuesta en formato JSON
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'Orden creada exitosamente. Los datos del carrito se eliminaron correctamente.']);
+        } else {
+            // Hubo un error al eliminar los datos del carrito
+            header('Content-Type: application/json');
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Error al eliminar los datos del carrito']);
+        }
+    } else {
+        // Devolver un error en formato JSON
+        header('Content-Type: application/json');
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Error al crear la orden']);
+    }
 } else {
-    // Devolver un error en formato JSON
-    header('Content-Type: application/json');
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Error al crear la orden']);
+    // Mostrar el formulario si no se ha enviado nada
+    echo '<form class = "formulario" id="order-form" method="POST">
+        <label for="nombres">Nombres:</label>
+        <input type="text" id="nombres" name="nombres" required>
+
+        <label for="apellidos">Apellidos:</label>
+        <input type="text" id="apellidos" name="apellidos" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="telefono">Teléfono:</label>
+        <input type="tel" id="telefono" name="telefono" required>
+
+        <label for="calle">Calle:</label>
+        <input type="text" id="calle" name="calle" required>
+
+        <label for="ciudad">Ciudad:</label>
+        <input type="text" id="ciudad" name="ciudad" required>
+
+        <label for="estado">Estado:</label>
+        <input type="text" id="estado" name="estado" required>
+
+        <label for="codigo-postal">Código Postal:</label>
+        <input type="text" id="codigo-postal" name="codigo-postal" required>
+
+        <input style = "padding-top: 10px !important
+                        padding-top: 10px;
+                        padding-bottom: 10px;
+                        margin-top: 10px;
+                        "
+                        type="submit" value="Realizar Pedido">
+
+    </form>';
 }
 ?>
