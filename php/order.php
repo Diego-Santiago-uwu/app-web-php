@@ -4,85 +4,69 @@ $username = "root";
 $password = "root1234";
 $dbname = "eq12velas";
 
-// Crear conexión
+// Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Verificar conexión
+// Check connection
 if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // Recoger los datos del formulario
-    $nombres = $_POST['nombres'];
-    $apellidos = $_POST['apellidos'];
-    $email = $_POST['email'];
-    $telefono = $_POST['telefono'];
-    $calle = $_POST['calle'];
-    $ciudad = $_POST['ciudad'];
-    $estado = $_POST['estado'];
-    $codigo_postal = $_POST['codigo-postal'];
-    $cartid = $_POST['cartid'];
+   // Collect form data
+   $nombres = $_POST['nombres'];
+   $apellidos = $_POST['apellidos'];
+   $email = $_POST['email'];
+   $telefono = $_POST['telefono'];
+   $calle = $_POST['calle'];
+   $ciudad = $_POST['ciudad'];
+   $estado = $_POST['estado'];
+   $codigo_postal = $_POST['codigo-postal'];
+   $cartid = $_POST['cartid'];
 
-    // Calcular el total del pedido
-    $sql = "SELECT SUM(product.precio * cart.quantity) AS total FROM cart INNER JOIN product ON cart.productid = product.productid WHERE cart.cartid = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $cartid);
-    $stmt->execute();
+   // Calculate the total of the order
+   $sql = "SELECT SUM(product.precio * cart.quantity) AS total FROM cart INNER JOIN product ON cart.productid = product.productid";
+   $result = $conn->query($sql);
 
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $total = $row['total'];
+   if ($result->num_rows > 0) {
+       $row = $result->fetch_assoc();
+       $total = $row['total'];
+   }
 
-    // Obtener los detalles del producto
-    $sql = "SELECT product.nombreproduct, cart.quantity FROM cart INNER JOIN product ON cart.productid = product.productid WHERE cart.cartid = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $cartid);
-    $stmt->execute();
-    $result = $stmt->get_result();
+   // Get product details
+   $sql = "SELECT product.productid, product.nombreproduct, product.precio, cart.quantity FROM product INNER JOIN cart ON product.productid = cart.productid";
+   $result = $conn->query($sql);
 
-    $contenido .= "\nProductos:\n";
-
-    while ($row = $result->fetch_assoc()) {
-        $contenido .= "Producto: " . $row['nombreproduct'] . ", Cantidad: " . $row['quantity'] . "\n";
-    }
+   if ($result->num_rows > 0) {
 
 
-    // Calcular el total del pedido
-    $sql = "SELECT SUM(product.precio * cart.quantity) AS total FROM cart INNER JOIN product ON cart.productid = product.productid WHERE cart.cartid = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $cartid);
-    $stmt->execute();
+       $contenido = "\nProductos:\n";
 
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $total = $row['total'];
+       while ($row = $result->fetch_assoc()) {
+           $contenido .= "Producto: " . $row['nombreproduct'] . ", Cantidad: " . $row['quantity'] . "\n";
+       }
 
-    $contenido .= "\nTotal a Pagar: $total\n";
+       $contenido .= "\nTotal a Pagar: $total\n";
 
-    $contenido =
-        "Nombres: $nombres\n
-        Apellidos: $apellidos\n
-        Email: $email\n
-        Teléfono: $telefono\n
-        Calle: $calle\n
-        Ciudad: $ciudad\n
-        Estado: $estado\n
-        Código Postal: $codigo_postal\n";
+        $contenido =
+            "Nombres: $nombres\n
+            Apellidos: $apellidos\n
+            Email: $email\n
+            Teléfono: $telefono\n
+            Calle: $calle\n
+            Ciudad: $ciudad\n
+            Estado: $estado\n
+            Código Postal: $codigo_postal\n" . $contenido;
 
-    while ($row = $result->fetch_assoc()) {
-        $contenido .= "\nProducto: " . $row['nombreproduct'] . "\nCantidad: " . $row['quantity'];
-    }
+   }
 
-    $contenido .= "\nTotal a Pagar: $total";
-
-    // Después de crear y cerrar el archivo
-   $archivo = fopen("../datos.txt", "w");
+    // After creating and closing the file
+    $archivo = fopen("../datos.txt", "w");
     fwrite($archivo, $contenido);
     fclose($archivo);
 
-    // Configurar los encabezados para la descarga
+    // Set headers for download
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
     header('Content-Disposition: attachment; filename="'.basename($archivo).'"');
@@ -91,59 +75,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Pragma: public');
     header('Content-Length: ' . filesize($archivo));
 
-    // Limpiar el buffer de salida
+    // Clean output buffer
     ob_clean();
     flush();
 
-    // Enviar el archivo al cliente
+    // Send file to client
     readfile($archivo);
 
-    // Eliminar el archivo del servidor después de enviarlo
+    // Delete file from server after sending
     unlink($archivo);
 
-    // Iniciar transacción
+    // Start transaction
     $conn->begin_transaction();
 
-    // Crear la consulta SQL para insertar la nueva orden
+    // Create SQL query to insert new order
     $sql = "INSERT INTO orders (cartid, total, nombres, apellidos, email, telefono, calle, ciudad, estado, `codigo-postal`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    // Preparar la consulta
+    // Prepare query
     $stmt = $conn->prepare($sql);
 
-    // Vincular los parámetros
+    // Bind parameters
     $stmt->bind_param("idssssssss", $cartid, $total, $nombres, $apellidos, $email, $telefono, $calle, $ciudad, $estado, $codigo_postal);
 
-    // Ejecutar la consulta
+    // Execute query
     if ($stmt->execute()) {
-        // Después de insertar la orden en la tabla orders
-        // Eliminar todos los datos del carrito
+        // After inserting order into orders table
+        // Delete all cart data
         $sql = "DELETE FROM cart";
         $stmt = $conn->prepare($sql);
         if ($stmt->execute()) {
-            // Los datos del carrito se eliminaron correctamente
-            // Confirmar transacción
+            // Cart data deleted successfully
+            // Commit transaction
             $conn->commit();
-            // Devolver una respuesta en formato JSON
+            // Return response in JSON format
             header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'message' => 'Orden creada exitosamente. Todos los datos del carrito se eliminaron correctamente.']);
+            echo json_encode(['success' => true, 'message' => 'Order created successfully. All cart data deleted successfully.']);
         } else {
-            // Hubo un error al eliminar los datos del carrito
-            // Revertir transacción
+            // Error deleting cart data
+            // Rollback transaction
             $conn->rollback();
             header('Content-Type: application/json');
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Error al eliminar los datos del carrito']);
+            echo json_encode(['success' => false, 'message' => 'Error deleting cart data']);
         }
     } else {
-        // Hubo un error al crear la orden
-        // Revertir transacción
+        // Error creating order
+        // Rollback transaction
         $conn->rollback();
         header('Content-Type: application/json');
         http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Error al crear la orden']);
+        echo json_encode(['success' => false, 'message' => 'Error creating order']);
     }
 } else {
-    // Mostrar el formulario si no se ha enviado nada
+    // Show form if nothing has been submitted
     echo '<form class="formulario" id="order-form" method="POST">
         <label for="nombres">Nombres:</label>
         <input type="text" id="nombres" name="nombres" required>
