@@ -4,23 +4,16 @@ window.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             document.querySelector('.order-container').innerHTML = data;
 
-            // Obtén el formulario
             const form = document.getElementById('order-form');
 
-            // Verifica si el formulario existe
             if (form) {
-                // Obtén el botón de envío
                 const submitButton = form.querySelector('input[type="submit"]');
 
-                // Verifica si el botón de envío existe
                 if (submitButton) {
-                    // Agrega un controlador de eventos al botón de envío
                     submitButton.addEventListener('click', function(event) {
-                        // Previene la acción por defecto del botón de envío
                         event.preventDefault();
                         console.log('El botón de envío ha sido accionado');
 
-                        // Obtén los datos del formulario
                         const nombres = document.getElementById('nombres').value;
                         const apellidos = document.getElementById('apellidos').value;
                         const email = document.getElementById('email').value;
@@ -30,22 +23,37 @@ window.addEventListener('DOMContentLoaded', function() {
                         const estado = document.getElementById('estado').value;
                         const codigoPostal = document.getElementById('codigo-postal').value;
 
-                        // Crea el contenido del archivo de texto
                         const contenido = `Nombres: ${nombres}\nApellidos: ${apellidos}\nEmail: ${email}\nTeléfono: ${telefono}\nCalle: ${calle}\nCiudad: ${ciudad}\nEstado: ${estado}\nCódigo Postal: ${codigoPostal}`;
 
-                        // Crea un objeto Blob con el contenido del archivo
                         const blob = new Blob([contenido], {type: 'text/plain'});
 
-                        // Crea una URL para el objeto Blob
                         const url = URL.createObjectURL(blob);
 
-                        // Crea un enlace y haz clic en él para descargar el archivo
+                        // Crear un objeto FormData para enviar los datos del formulario
+                        const formData = new FormData(form);
+
+                        // Hacer una solicitud fetch al servidor
+                        fetch('../php/order.php', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    console.log('Orden creada exitosamente. Los datos del carrito se eliminaron correctamente.');
+                                } else {
+                                    console.error('Error al crear la orden y/o eliminar los datos del carrito:', data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error al hacer la solicitud fetch:', error);
+                            });
+
                         const link = document.createElement('a');
                         link.href = url;
                         link.download = 'datos.txt';
                         link.click();
 
-                        // Libera la URL del objeto Blob
                         URL.revokeObjectURL(url);
                     });
                 } else {

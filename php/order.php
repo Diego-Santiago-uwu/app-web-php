@@ -33,6 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $row = $result->fetch_assoc();
     $total = $row['total'];
 
+    // Iniciar transacción
+    $conn->begin_transaction();
+
     // Crear la consulta SQL para insertar la nueva orden
     $sql = "INSERT INTO orders (cartid, total, nombres, apellidos, email, telefono, calle, ciudad, estado, `codigo-postal`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -45,23 +48,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Ejecutar la consulta
     if ($stmt->execute()) {
         // Después de insertar la orden en la tabla orders
-        // Eliminar los datos del carrito
-        $sql = "DELETE FROM cart WHERE cartid = ?";
+        // Eliminar todos los datos del carrito
+        $sql = "DELETE FROM cart";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $cartid);
         if ($stmt->execute()) {
             // Los datos del carrito se eliminaron correctamente
+            // Confirmar transacción
+            $conn->commit();
             // Devolver una respuesta en formato JSON
             header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'message' => 'Orden creada exitosamente. Los datos del carrito se eliminaron correctamente.']);
+            echo json_encode(['success' => true, 'message' => 'Orden creada exitosamente. Todos los datos del carrito se eliminaron correctamente.']);
         } else {
             // Hubo un error al eliminar los datos del carrito
+            // Revertir transacción
+            $conn->rollback();
             header('Content-Type: application/json');
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Error al eliminar los datos del carrito']);
         }
     } else {
-        // Devolver un error en formato JSON
+        // Hubo un error al crear la orden
+        // Revertir transacción
+        $conn->rollback();
         header('Content-Type: application/json');
         http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Error al crear la orden']);
